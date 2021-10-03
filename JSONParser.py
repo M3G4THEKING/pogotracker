@@ -16,5 +16,8 @@ def loadDatabaseConfig(path: str):
 		parsed += f"{val}={tmp[val]} "
 	return parsed.strip()
 
+def getConfig():
+	return loadJSON("Config.json")
+
 def getPermessi():
 	return loadJSON("Permessi.json")

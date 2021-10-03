@@ -4,3 +4,4 @@ screenlog.0
 connectPsycopg2.txt
 Bot.json
 Connect.json
+Config.json

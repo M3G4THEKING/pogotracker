@@ -4,7 +4,7 @@ from telegram.ext import Updater
 from telegram import Bot
 from Database import createConnection
 from JSONParser import loadJSON, loadDatabaseConfig
-from CommandHandler import loadCommands, loadCallbackQueries
+from CommandHandler import loadCommands, loadCallbackQueries, loadInlineQueries, loadMessageHandler
 
 """
 RaidHelpBot
@@ -31,6 +31,8 @@ def main() -> None:
 
 	loadCommands(updater.dispatcher)
 	loadCallbackQueries(updater.dispatcher)
+	loadInlineQueries(updater.dispatcher)
+	loadMessageHandler(updater.dispatcher)
 
 	logging.getLogger('apscheduler').setLevel(logging.WARNING)
 
