@@ -1,0 +1,9 @@
+chatid -1001391984888
+fly True
+userbot @raidhelpbot
+raidperm admin
+molestachat no
+mappa False
+tastorimossi True
+limitekm 0
+chatraid -1001391984888
