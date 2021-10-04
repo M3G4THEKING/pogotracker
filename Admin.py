@@ -22,6 +22,8 @@ def changePermission(update:Update, context: CallbackContext, minPerm: int, Auto
 		target = (getUser(int(command[1])) if command[1].isdigit() else getUser(None, command[1])) if len(command) > 1 else None
 		if len(command) > 1 and (not target):
 			context.bot.sendMessage(chat_id = update.message.chat_id, text = "Utente non trovato")
+		elif target.Autorizzazione >= permLevel(update.message.from_user.id):
+			context.bot.sendMessage(chat_id = update.message.chat_id, text = "Non puoi cambiare i permessi di chi è del tuo stesso livello")
 		else:
 			target.Autorizzazione = Autorizzazione
 			target.setAuthorization(Autorizzazione)
@@ -90,7 +92,7 @@ def palestra(update: Update, context: CallbackContext):
 	Palestre = findGym(filters)
 	if len(Palestre) != 0:
 		return context.bot.sendMessage(chat_id = update.message.chat_id, text = "Ho trovato altre palestre con quel nome, usano uno più specifico")
-	nome = ' '.join(filters).replace("%","")
+	nome = ' '.join(filters).replace("%","")[:50]
 	IDPalestra = addGym(nome, posizione)
 	context.bot.sendLocation(chat_id = update.message.chat_id, longitude = posizione[0], latitude = posizione[1])
 	return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Nuova palestra! (#{IDPalestra}):{chr(10)}{nome}{chr(10)}<code>{posizione[0]}, {posizione[1]}</code>", parse_mode = "HTML")
