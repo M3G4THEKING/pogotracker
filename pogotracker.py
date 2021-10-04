@@ -17,7 +17,7 @@ logging.basicConfig(
 	level = logging.INFO,
 	datefmt = "%d/%m/%Y %H:%M:%S",
 	handlers = [
-		TimedRotatingFileHandler("logs/AdventureGame.log", when = "midnight", backupCount = 14)
+		TimedRotatingFileHandler("logs/RaidHelp.log", when = "midnight", backupCount = 2)
 	]
 )
 
