@@ -19,5 +19,12 @@ def loadDatabaseConfig(path: str):
 def getConfig():
 	return loadJSON("Config.json")
 
+def getListaRaid():
+	return loadJSON("ListaRaid.json")
+
 def getPermessi():
 	return loadJSON("Permessi.json")
+
+def updateListaRaid(Lista: dict):
+	with open("ListaRaid.json", 'w') as File:
+		json.dump(Lista, File)
