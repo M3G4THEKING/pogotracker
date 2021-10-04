@@ -89,7 +89,7 @@ def codice_amico(bot, update):
 		testo = reply.text.split()
 		try:
 			codice_amico = int(testo[0])
-			codice_amico = testo[0]	
+			codice_amico = testo[0]
 		except:
 			tosendtext = "Manda un valore numerico"
 	if len(str(codice_amico)) != 12:
@@ -170,7 +170,7 @@ def database(bot, update):
 		countMessages = int(countLines/lpm)
 		if countLines % lpm != 0:
 			countMessages += 1
-		for i in range(0, countMessages):		
+		for i in range(0, countMessages):
 			tosendtext = ""
 			#Calcolo il massimo di righe da mettere nel messaggio che segue, se è minore del massimo per messaggio lo mette com massimo del ciclo
 			maxim = lpm
@@ -179,7 +179,7 @@ def database(bot, update):
 				maxim = cap
 			for k in range(0, maxim):
 				if (i*lpm+k) < countLines:
-					tosendtext += "ID:" + str(lista_utenti[i*lpm+k].id_utente) + ", <b>@" + lista_utenti[i*lpm+k].username + "</b>, Messaggi: " + str(lista_utenti[i*lpm+k].messaggi) + ", Warn: " + str(lista_utenti[i*lpm+k].warn) + "\n" 
+					tosendtext += "ID:" + str(lista_utenti[i*lpm+k].id_utente) + ", <b>@" + lista_utenti[i*lpm+k].username + "</b>, Messaggi: " + str(lista_utenti[i*lpm+k].messaggi) + ", Warn: " + str(lista_utenti[i*lpm+k].warn) + "\n"
 			bot.sendMessage(chat_id = chat_id, text = tosendtext, parse_mode = "HTML")
 		return
 	if command[1] == "assenti":
@@ -197,7 +197,7 @@ def database(bot, update):
 		countMessages = int(countLines/lpm)
 		if countLines % lpm != 0:
 			countMessages += 1
-		for i in range(0, countMessages):		
+		for i in range(0, countMessages):
 			tosendtext = ""
 			#Calcolo il massimo di righe da mettere nel messaggio che segue, se è minore del massimo per messaggio lo mette com massimo del ciclo
 			maxim = lpm
@@ -206,14 +206,14 @@ def database(bot, update):
 				maxim = cap
 			for k in range(0, maxim):
 				if (i*lpm+k) < countLines:
-					tosendtext += "ID:" + str(lista_utenti[i*lpm+k].id_utente) + ", <b>@" + lista_utenti[i*lpm+k].username + "</b>, Messaggi: " + str(lista_utenti[i*lpm+k].messaggi) + ", Warn: " + str(lista_utenti[i*lpm+k].warn) + "\n" 
+					tosendtext += "ID:" + str(lista_utenti[i*lpm+k].id_utente) + ", <b>@" + lista_utenti[i*lpm+k].username + "</b>, Messaggi: " + str(lista_utenti[i*lpm+k].messaggi) + ", Warn: " + str(lista_utenti[i*lpm+k].warn) + "\n"
 			bot.sendMessage(chat_id = chat_id, text = tosendtext, parse_mode = "HTML")
 		return
 	elif command[1] == "admin":
 		lista_admin = utility.groupAdmins(group_id)
 		tosendtext = "Amministratori:\n"
 		for i in range(0, len(lista_admin)):
-			tosendtext += "ID:" + str(lista_admin[i].id_utente) + ", <b>@" + lista_admin[i].username + "</b>, Messaggi: " + str(lista_admin[i].messaggi) + ", Ruolo: " + str(lista_admin[i].autorizzazione) + "\n" 
+			tosendtext += "ID:" + str(lista_admin[i].id_utente) + ", <b>@" + lista_admin[i].username + "</b>, Messaggi: " + str(lista_admin[i].messaggi) + ", Ruolo: " + str(lista_admin[i].autorizzazione) + "\n"
 		bot.sendMessage(chat_id = chat_id, text = tosendtext, parse_mode="HTML")
 	elif command[1] == "bannati":
 		lista_bannati = utility.groupBanned(group_id)
@@ -225,7 +225,7 @@ def database(bot, update):
 		countMessages = int(countLines/lpm)
 		if countLines % lpm != 0:
 			countMessages = countMessages + 1
-		for i in range(0, countMessages):		
+		for i in range(0, countMessages):
 			tosendtext = ""
 			#Calcolo il massimo di righe da mettere nel messaggio che segue, se è minore del massimo per messaggio lo mette com massimo del ciclo
 			maxim = lpm
@@ -248,7 +248,7 @@ def getuser(bot, update):
 	username = str(update.message.from_user.username)
 	if len(username) < 5:
 		username = "None"
-	if str(chat_id) == chat_dedicata:	
+	if str(chat_id) == chat_dedicata:
 		if utility.userPresence(id_utente):
 			utente = utility.getUtente(id_utente)
 			if username != utente.username:
@@ -379,7 +379,7 @@ def info(bot, update):
 		text += " 🔵"
 	else:
 		text += " 🥐"
-	#"\n<b>Legit</b>: " 
+	#"\n<b>Legit</b>: "
 	#if utente.legit:
 	#	text += "Sì"
 	#else:
@@ -411,7 +411,7 @@ def inlineraid(bot, update):
 	if raid.id_raid == -1:
 		resultText = "Raid non trovato"
 		results.append(InlineQueryResultArticle(id = uuid4(), title = "Non trovato", input_message_content = InputTextMessageContent(resultText)))
-	else:	
+	else:
 		resultText = testoRaid(raid)
 		keyboard.append([InlineKeyboardButton("Presente", callback_data = "raid " + str(id_raid) + " present"),InlineKeyboardButton("Invitami", callback_data = "raid " + str(id_raid) + " invited")])
 		if flyflag:
@@ -423,8 +423,8 @@ def inlineraid(bot, update):
 		else: #fixato
 			keyboard.append([InlineKeyboardButton("🟡", callback_data = "raid " + str(id_raid) + " team giallo"), InlineKeyboardButton("🔴", callback_data = "raid " + str(id_raid) + " team rosso"), InlineKeyboardButton("🔵", callback_data = "raid " + str(id_raid) + " team blu")])
 		reply_markup= InlineKeyboardMarkup(keyboard)
-		results.append(InlineQueryResultArticle(id = uuid4(), title = "Invia: " + raid.pokemon, input_message_content = InputTextMessageContent(resultText, parse_mode = "HTML"), reply_markup = reply_markup))	
-		
+		results.append(InlineQueryResultArticle(id = uuid4(), title = "Invia: " + raid.pokemon, input_message_content = InputTextMessageContent(resultText, parse_mode = "HTML"), reply_markup = reply_markup))
+
 	update.inline_query.answer(results, cache_time = 2)
 
 def legit(bot, update):
@@ -471,10 +471,10 @@ def livello(bot, update):
 	else:
 		testo = reply.text.split()
 		try:
-			livello = int(testo[0])	
+			livello = int(testo[0])
 			if livello > 50 or livello < 1:
 				tosendtext = "Il livello può andare solo da 1 a 50."
-				livello = 1	
+				livello = 1
 		except:
 			tosendtext = "Manda un valore numerico"
 	if livello != 1:
@@ -600,30 +600,6 @@ def parametri(text):
 			if parametro[j] == " " and (not simbolo):
 				rimossi += 1
 		parametri.append(parametro[rimossi:])
-	#parametri_completi = []
-	#Ridefinisco un array con coppie di parametro e numero
-	#parametro = ""
-	#for i in range(0, len(parametri)):
-	#	numero = 1
-	#	if ":" in parametri[i]:
-	#		numeroTrovato = False
-	#		for j in range(0, len(parametri[i])):
-	#			if not numeroTrovato:
-	#				if parametri[i][j] != ":":
-	#					parametro = parametro + parametri[i][j]
-	#				else:
-	#					parametri.append(parametro)
-	#					try:
-	#						numero = int(parametri[i][j+1:])
-	#						if numero < 1:
-	#							numero = 1
-	#					except:
-	#						numero = 1
-	#					numeroTrovato = True
-	#		parametri_completi.append([parametro, numero])
-	#	else:	
-	#		parametri_completi.append([parametri[i], numero])
-	#	parametro = ""
 	return parametri
 
 def raid(bot, update):
@@ -668,7 +644,7 @@ def raid(bot, update):
 				if len(param) > index+1:
 					orariofine = param[index+1]
 	else:
-		id_palestra = 0	
+		id_palestra = 0
 	id_raid = utility.newraidid()
 	if len(orarioinizio) > 1:
 		orarioinizio = orarioinizio.replace("."," ")
@@ -751,7 +727,7 @@ def raidbutton(bot, query):
 	if flyflag:
 		keyboard.append([InlineKeyboardButton("Remoto", callback_data = "raid " + str(id_raid) + " fly"),InlineKeyboardButton("Toglimi", callback_data = "raid " + str(id_raid) + " remove")])
 	else:
-		keyboard.append([InlineKeyboardButton("Toglimi", callback_data = "raid " + str(id_raid) + " remove")])	
+		keyboard.append([InlineKeyboardButton("Toglimi", callback_data = "raid " + str(id_raid) + " remove")])
 	if azione == "present" or azione == "invited" or azione == "fly":
 		if presente:
 			aggiunto = False
@@ -782,13 +758,13 @@ def raidbutton(bot, query):
 			cur.execute("update raid set presenti = (%(pres)s), remoti = (%(remo)s), fly = (%(fly)s), numero_presenze = (%(numero_presenze)s), numero_invitati = (%(numero_invitati)s), numero_fly = (%(numero_fly)s) where id_raid = (%(id_raid)s)", {'pres':raid.presenti, 'remo':raid.invitati, 'fly':raid.fly, 'numero_presenze':raid.numero_presenze, 'numero_invitati':raid.numero_invitati, 'numero_fly':raid.numero_fly, 'id_raid':id_raid})
 			conn.commit()
 		else:
-			if azione == "present": 
+			if azione == "present":
 				raid.presenti.append(id_utente)
 				raid.numero_presenze.append(1)
-			if azione == "invited": 
+			if azione == "invited":
 				raid.invitati.append(id_utente)
 				raid.numero_invitati.append(1)
-			if azione == "fly": 
+			if azione == "fly":
 				raid.fly.append(id_utente)
 				raid.numero_fly.append(1)
 			if id_utente in raid.rimossi:
@@ -798,7 +774,7 @@ def raidbutton(bot, query):
 						temprim.append(raid.rimossi[i])
 				raid.rimossi = temprim
 			cur.execute("update raid set presenti = (%(pres)s), remoti = (%(remo)s), fly = (%(fly)s), numero_presenze = (%(numero_presenze)s), numero_invitati = (%(numero_invitati)s), numero_fly = (%(numero_fly)s), rimossi = (%(rim)s) where id_raid = (%(id_raid)s)", {'pres':raid.presenti, 'remo':raid.invitati, 'fly':raid.fly, 'numero_presenze':raid.numero_presenze, 'numero_invitati':raid.numero_invitati, 'numero_fly':raid.numero_fly, 'rim':raid.rimossi, 'id_raid':id_raid})
-			conn.commit()	
+			conn.commit()
 	elif azione == "remove":
 		if not presente:
 			return
@@ -830,7 +806,7 @@ def raidbutton(bot, query):
 			raid.fly = listafly
 			raid.numero_fly = listanumerofly
 			cur.execute("update raid set presenti = (%(pres)s), remoti = (%(remo)s), fly = (%(fly)s), numero_presenze = (%(numero_presenze)s), numero_invitati = (%(numero_invitati)s), numero_fly = (%(numero_fly)s), rimossi = (%(rim)s) where id_raid = (%(id_raid)s)", {'pres':raid.presenti, 'remo':raid.invitati, 'fly':raid.fly, 'numero_presenze':raid.numero_presenze, 'numero_invitati':raid.numero_invitati, 'numero_fly':raid.numero_fly, 'rim':raid.rimossi, 'id_raid':id_raid})
-			conn.commit()		
+			conn.commit()
 	elif azione == "passex":
 		if authorized.admin(id_utente) or id_utente == raid.id_creatore:
 			if raid.passex:
@@ -843,7 +819,7 @@ def raidbutton(bot, query):
 			return
 	elif azione == "delete":
 		if authorized.admin(id_utente) or id_utente == raid.id_creatore:
-			raid.informazioni = "<b>CHIUSO</b>\n" + raid.informazioni	
+			raid.informazioni = "<b>CHIUSO</b>\n" + raid.informazioni
 			raid.stato = "Chiuso"
 			cur.execute("update raid set stato = 'Chiuso' where id_raid = (%(id_raid)s)", {'id_raid':id_raid})
 			conn.commit()
@@ -888,12 +864,12 @@ def raidbutton(bot, query):
 	#			raid.ora_termine[1] -= 60
 	#		cur.execute("update raid set ora_termine[1] = (%(ora)s)", {'ora':raid.ora_termine[0]})
 	#		cur.execute("update raid set ora_termine[2] = (%(ora)s)", {'ora':raid.ora_termine[1]})
-	elif azione == "ora":	
+	elif azione == "ora":
 		if authorized.admin(id_utente) or id_utente == raid.id_creatore:
 			sottoazione = data[3]
 			if sottoazione == "conferma":
 				raid.ora_confermata = True
-				cur.execute("update raid set ora_confermata = (%(ora)s)", {'ora':raid.ora_confermata})	
+				cur.execute("update raid set ora_confermata = (%(ora)s)", {'ora':raid.ora_confermata})
 				conn.commit()
 		else:
 			return
@@ -911,7 +887,7 @@ def raidbutton(bot, query):
 				tosendtext += "\n(" + str(raid.rimossi[i]) + ")"
 				utente = utility.getUtente(raid.rimossi[i])
 				if utente.nickname != "Nessuno":
-					tosendtext += ", " + utente.nickname 
+					tosendtext += ", " + utente.nickname
 				if utente.username != "None":
 					tosendtext += ", @" + utente.username
 				if utente.nome != "Nessuno":
@@ -933,7 +909,7 @@ def raidbutton(bot, query):
 	else:
 		keyboard.append([InlineKeyboardButton("🟡", callback_data = "raid " + str(id_raid) + " team giallo"), InlineKeyboardButton("🔴", callback_data = "raid " + str(id_raid) + " team rosso"), InlineKeyboardButton("🔵", callback_data = "raid " + str(id_raid) + " team blu")])
 		if tastorimossi:
-			keyboard.append([InlineKeyboardButton("Chi si è tolto?", callback_data = "raid " + str(id_raid) + " rimossi")])	
+			keyboard.append([InlineKeyboardButton("Chi si è tolto?", callback_data = "raid " + str(id_raid) + " rimossi")])
 	if raid.livello > 0 and (not raid.ora_confermata) and raid.stato != "Chiuso":
 		#keyboard.append([InlineKeyboardButton("-1 ora", callback_data = "raid " + str(id_raid) + " ora ora -1"),InlineKeyboardButton("+1 ora", callback_data = "raid " + str(id_raid) + " ora ora 1")])
 		#keyboard.append([InlineKeyboardButton("-10 min", callback_data = "raid " + str(id_raid) + " ora minuto -10"),InlineKeyboardButton("-5 min", callback_data = "raid " + str(id_raid) + " ora minuto -5"),InlineKeyboardButton("-1 min", callback_data = "raid " + str(id_raid) + " ora minuto -1"),InlineKeyboardButton("+1 min", callback_data = "raid " + str(id_raid) + " ora minuto 1"),InlineKeyboardButton("+5 min", callback_data = "raid " + str(id_raid) + " ora minuto 5"),InlineKeyboardButton("+10 min", callback_data = "raid " + str(id_raid) + " ora minuto 10")])
@@ -980,7 +956,7 @@ def screen(bot, update):
 		try:
 			screen = reply.photo[-1].file_id
 			utente = utility.getUtente(update.message.from_user.id)
-			cur.execute("update utenti set screen = (%(screen)s) where id_utente = (%(id_utente)s)", {'screen':screen, 'id_utente':id_utente})
+			cur.execute("update utenti set screen = (%(screen)s) where id_utente = (%(id_utente)s)", {'screen':screen, 'id_utente':update.message.from_user.id})
 			tosendtext = "Screen impostato correttamente"
 			conn.commit()
 			bot.sendPhoto(chat_id = update.message.chat_id, photo = screen)
@@ -1072,20 +1048,20 @@ def riconosciPalestra(parametro):
 				nuove.append(palestre[i][0])
 			return nuove
 
-def tesseract(bot, update):
-	photo = update.message.photo[-1]
-	print("A")
-	remote_file = bot.getFile(file_id=photo.file_id)
-	print("B")
-	name = "fotoprova"
-	print("C")
-	indirizzo = "elah900"
-	print("D")
-	remote_file.download(indirizzo)
-	print("E")
-	text =pytesseract.image_to_string(Image.open(indirizzo), config='-psm 7')
-	print("F")
-	print(len(text))
+#def tesseract(bot, update):
+#	photo = update.message.photo[-1]
+#	print("A")
+#	remote_file = bot.getFile(file_id=photo.file_id)
+#	print("B")
+#	name = "fotoprova"
+#	print("C")
+#	indirizzo = "elah900"
+#	print("D")
+#	remote_file.download(indirizzo)
+#	print("E")
+#	text =pytesseract.image_to_string(Image.open(indirizzo), config='-psm 7')
+#	print("F")
+#	print(len(text))
 
 def testoRaid(raid):
 	tosendtext = ""
