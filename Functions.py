@@ -160,7 +160,7 @@ def raid(update: Update, context: CallbackContext):
 		sendMessage(context.bot, update.message.chat_id, f"Troppe palestre col nome: {param[0]}" if len(palestra) > 1 else f"Nessuna palestra trovata col nome: {param[0]}")
 	palestra = palestra[0] if len(palestra) == 1 else None
 	orainizio = transformTime(param[1]) if len(param) > 1 else None
-	pokemon = ((param[1] if len(param[1]) <= 32 else param[1][:32]) if len(param) > 1 else None) if not orainizio else None
+	pokemon = ((param[1] if len(param[1]) <= 64 else param[1][:64]) if len(param) > 1 else None) if not orainizio else None
 	orainizio = (transformTime(param[2]) if len(param) > 2 else None) if not orainizio else orainizio
 	if not orainizio:
 		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"{param[2]} non è un orario valido, prova il formato 12.30")
@@ -223,7 +223,7 @@ def raidbutton(update: Update, context: CallbackContext):
 			raid.Livello = int(update.callback_query.data.split()[3])
 			raid.setLivello(raid.Livello)
 		elif azione == "pokemon":
-			raid.Pokemon = update.callback_query.data.split()[3]
+			raid.Pokemon = ' '.join(update.callback_query.data.split()[3:])[:64]
 			raid.setPokemon(raid.Pokemon)
 		elif azione == "ora":
 			raid.OraConfermata = True
