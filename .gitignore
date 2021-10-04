@@ -5,3 +5,4 @@ connectPsycopg2.txt
 Bot.json
 Connect.json
 Config.json
+ListaRaid.json
