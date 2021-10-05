@@ -22,7 +22,7 @@ def addGym(Nome: str, Posizione: dict):
 
 def addRaid(IDCreatore: int, Partecipanti: dict, Pokemon: str, IDPalestra: int, OraInizio: dict, OraFine: dict):
 	cur = getCursor()
-	cur.execute('INSERT INTO "Raids" ("IDCreatore", "Partecipanti", "Pokemon", "IDPalestra", "OraInizio", "OraFine") VALUES (%s, %s, %s, %s, %s, %s, %s) RETURNING "IDRaid"', (IDCreatore, dumps(Partecipanti), Pokemon, IDPalestra, OraInizio, OraFine))
+	cur.execute('INSERT INTO "Raids" ("IDCreatore", "Partecipanti", "Pokemon", "IDPalestra", "OraInizio", "OraFine") VALUES (%s, %s, %s, %s, %s, %s) RETURNING "IDRaid"', (IDCreatore, dumps(Partecipanti), Pokemon, IDPalestra, OraInizio, OraFine))
 	return cur.fetchone()[0]
 
 def addUser(IDUtente: int, Username: str, Nome: str):
@@ -37,8 +37,8 @@ def deleteGym(IDPalestra: int):
 
 def findGym(filters: dict = []):
 	cur = getCursor()
-	if len(filters) == 1 and filters[0].replace("%","").replace("#","").isdigit():
-		cur.execute('SELECT * FROM "Gyms" WHERE "IDPalestra" = %s LIKE ALL (%s)', (int(filters[0].replace("%","").replace("#","")), ))
+	if len(filters) == 1 and filters[0].replace("%","").isdigit():
+		cur.execute('SELECT * FROM "Gyms" WHERE "IDPalestra" = %s', (int(filters[0].replace("%","")), ))
 	else:
 		cur.execute('SELECT * FROM "Gyms" WHERE lower("Nome") LIKE ALL (%s)', (filters, ))
 	return cur.fetchall()
@@ -52,7 +52,7 @@ def getAuth(ID: int = None, Username: str = None):
 	if Username:
 		cur.execute('SELECT "Autorizzazione" FROM "Users" WHERE lower("Username") = %s or lower("Nickname") = %s', (Username.lower() if Username[0] != "@" else Username[1:].lower(), ))
 		res = cur.fetchone()
-	return res[0] if res else 0
+	return int(res[0]) if res else 0
 
 def getCodesList(team: str = None):
 	cur = getCursor()
@@ -69,7 +69,7 @@ def getGym(IDPalestra: int):
 
 def getRaid(ID: int = None):
 	cur = getCursor()
-	cur.execute('SELECT * FROM "Raids" WHERE "IDRaid" = %s', (str(ID), ))
+	cur.execute('SELECT * FROM "Raids" WHERE "IDRaid" = %s', (ID, ))
 	res = cur.fetchone()
 	return Raid(res) if res else None
 
