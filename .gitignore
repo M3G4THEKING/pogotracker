@@ -6,3 +6,8 @@ Bot.json
 Connect.json
 Config.json
 ListaRaid.json
+logs
+.env
+pogocreep.sh
+requirements.txt
+logs/RaidHelp.log
