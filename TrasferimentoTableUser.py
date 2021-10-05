@@ -10,6 +10,7 @@ cur.execute("select * from utenti")
 res = cur.fetchall()
 
 for ute in res:
+	user = None if ute[1] == "None" else ute[1]
 	nick = sanification(ute[2], True)[:16] if ute[2] != "None" else None
 	liv = None if ute[3] == 1 else ute[3]
 	team = None if ute[4] == "Nessuno" else ute[4]
@@ -19,6 +20,6 @@ for ute in res:
 	pos = None if ute[9][0] > 11.7321 and ute[9][0] < 11.7323 else pos
 	codic = None if ute[10] == "None" else ute[10]
 	nome = None if ute[11] == "Nessuno" else sanification(ute[11])[:64]
-	cur.execute("insert into Users values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (ute[0], ute[1], nick, liv, team, aut, scre, pos[0] if pos else None, pos[1] if pos else None, codic, nome))
+	cur.execute('insert into "Users" values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', (ute[0], user, nick, liv, team, aut, scre, pos[0] if pos else None, pos[1] if pos else None, codic, nome))
 
 conn.commit()

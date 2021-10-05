@@ -10,6 +10,6 @@ res = cur.fetchall()
 
 for pal in res:
 	nome = pal[1][:50]
-	cur.execute("insert into Gyms values (%s, %s, %s, %s)", (pal[0], nome, pal[2], pal[3]))
+	cur.execute('insert into "Gyms" ("Nome", "Longitudine", "Latitudine") values (%s, %s, %s)', (nome, pal[2], pal[3]))
 
 conn.commit()

@@ -25,6 +25,6 @@ for raid in res:
 	idp = None if not raid[10] else raid[10]
 	orai = [int(raid[11][0]), int(raid[16][1])]
 	orat = [int(raid[11][0]), int(raid[11][1])]
-	cur.execute("insert into Raids values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)", (raid[0], raid[1], dumps(Part), raid[5], raid[6], liv, pok, idp, orai, orat, raid[12]))
+	cur.execute('insert into "Raids" values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)', (raid[0], raid[1], dumps(Part), raid[5], raid[6], liv, pok, idp, orai, orat, raid[12]))
 
 conn.commit()
