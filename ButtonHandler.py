@@ -12,6 +12,7 @@ def ButtonHandler(update: Update, context: CallbackContext) -> None:
 	if not Handler:
 		logging.warn(f"Unknown button!")
 	else:
+		logging.info(f"{update.callback_query.from_user.id}: {update.callback_query.data}")
 		Handler(update, context)
 
 def annullaButton(update: Update, context: CallbackContext) -> None:
