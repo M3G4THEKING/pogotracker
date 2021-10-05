@@ -8,11 +8,11 @@ class Raid:
 		self.Partecipanti = data[2]
 		self.PassEX = data[3]
 		self.Stato = data[4]
-		self.Livello = data[5]
+		self.Livello = int(data[5]) if data[5] else None
 		self.Pokemon = data[6]
 		self.IDPalestra = data[7]
-		self.OraInizio = data[8]
-		self.OraFine = data[9]
+		self.OraInizio = [int(data[8][0]), int(data[8][1])]
+		self.OraFine = [int(data[9][0]), int(data[9][1])]
 		self.OraConfermata = data[10]
 
 	def setLivello(self, Livello: bool):
