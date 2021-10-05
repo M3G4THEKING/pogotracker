@@ -5,9 +5,9 @@ class User:
 		self.IDUtente = data[0]
 		self.Username = data[1]
 		self.Nickname = data[2]
-		self.Livello = data[3]
+		self.Livello = int(data[3]) if data[3] else None
 		self.Team = data[4]
-		self.Autorizzazione = data[5]
+		self.Autorizzazione = int(data[5])
 		self.Screen = data[6]
 		self.Posizione = [data[7], data[8]]
 		self.CodiceAmico = data[9]
@@ -50,10 +50,10 @@ class User:
 
 	def setTeam(self, Team: str):
 		cur = Database.getCursor()
-		cur.execute('UPDATE "Users" SET "team" = %s WHERE "IDUtente" = %s', (Team, self.IDUtente))
+		cur.execute('UPDATE "Users" SET "Team" = %s WHERE "IDUtente" = %s', (Team, self.IDUtente))
 		Database.getConnection().commit()
 
 	def setUsername(self, Username: str):
 		cur = Database.getCursor()
-		cur.execute('UPDATE "Users" SET "username" = %s WHERE "IDUtente" = %s', (Username, self.IDUtente))
+		cur.execute('UPDATE "Users" SET "Username" = %s WHERE "IDUtente" = %s', (Username, self.IDUtente))
 		Database.getConnection().commit()
