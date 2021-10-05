@@ -9,7 +9,7 @@ class User:
 		self.Team = data[4]
 		self.Autorizzazione = int(data[5])
 		self.Screen = data[6]
-		self.Posizione = [data[7], data[8]]
+		self.Posizione = [data[7], data[8]] if data[7] else None
 		self.CodiceAmico = data[9]
 		self.Nome = data[10]
 

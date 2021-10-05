@@ -33,44 +33,11 @@ def distance(utente: User, pos: dict):
 def filterDistance(Palestre: dict, utente: User, limitekm: int, mappa: bool):
 	newPal = []
 	for pal in Palestre:
-		dist = distance(utente, [pal[2], pal[3]]) if (mappa and utente.Longitudine) else None
+		dist = distance(utente, [pal[2], pal[3]]) if (mappa and utente.Posizione) else None
 		if (not dist) or (not limitekm) or dist <= limitekm:
-			newPal.append(pal, dist)
-	return sorted(newPal, key=lambda pd: pd[1])
-
-def readChat(update: Update, context: CallbackContext):
-	config = getConfig()
-	if not (update.message.chat_id == config["chatadmin"] or update.message.chat.type == "private"):
-		return
-	perm = permLevel(update.message.from_user.id)
-	if perm < 0:
-		return
-	if not perm:
-		addUser(update.message.from_user.id, update.message.from_user.username, update.message.from_user.first_name)
-		if config["molestachat"]:
-			context.bot.sendMessage(chat_id = update.message.chat_id, text = f"<b>Ciao {update.message.from_user.first_name}!</b>{chr(10)}Invia a {config['userbot']} lo screen del tuo personaggio con nickname, livello e colore del team visibili!{f'{chr(10)}Inoltre, poiché non hai un username telegram, sarebbe comodo che tu ne scegliessi uno' if update.message.from_user.username else ''}", parse_mode = "HTML")
-	elif update.message.chat.type == "private" and perm:
-		command = sanification(update.message.text).split()
-		if command[0][0] == "!":
-			if command[0].lower() == "!admin":
-				context.bot.sendMessage(chat_id = update.message.chat_id, text = mostraUtenti(getUsersListByAuth(2)))
-			elif command[0].lower() == "!codici":
-				context.bot.sendMessage(chat_id = update.message.chat_id, text = mostraCodici(getCodesList(command[1].lower() if (command[1].lower() == "rosso" or command[1].lowe() == "blu" or command[1].lower() == "giallo") else None)))
-			#elif command[0][0] == "!comandi":
-			#	context.bot.sendMessage(chat_id = update.message.chat_id, text = commandsList())
-			#else:
-			#	personalizedCommand(context.bot, update, command[0][1:])
-		else:
-			utente = getUser(update.message.from_user.id)
-			if utente.username != update.message.from_user.username:
-				utente.setUsername(update.message.from_user.username)
-			if utente.nome != update.message.from_user.first_name:
-				utente.setName(update.message.from_user.first_name)
-			if config["screen"] and update.message.photo and update.mesage.photo[-1] and update.mesage.photo[-1].file_id:
-				utente.setScreen(update.message.photo[-1].file_id)
-				context.bot.sendPhoto(chat_id = update.message.from_user.id, photo = update.message.photo[-1].file_id, caption = "Screen impostato!")
-			if config["location"] and update.message.location:
-				utente.setLocation(update.message.location)
+			newPal.append([pal, dist])
+	#return newPal
+	return sorted(newPal, key=lambda pd: pd[1]) if (mappa and utente.Posizione) else sorted(newPal, key=lambda pd: pd[0][1])
 
 def gym(update: Update, context: CallbackContext):
 	if denyCommand(update):
@@ -82,7 +49,7 @@ def gym(update: Update, context: CallbackContext):
 	Palestre = findGym(filters)
 	config = getConfig()
 	utente = getUser(update.message.from_user.id)
-	Palestre = filterDistance(Palestre, utente, config["limitekm"], config["mappa"])
+	Palestre = filterDistance(Palestre, utente, config["limitekm"], config["location"])
 	if len(Palestre) == 0:
 		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"""Nessuna palestra trovata{f" col nome {' '.join(command[1:])}" if len(command) > 1 else ""}{f" entro{config['limitekm']}km" if config['limitekm'] else ''}""")
 	if len(Palestre) == 1:
@@ -90,9 +57,12 @@ def gym(update: Update, context: CallbackContext):
 			context.bot.sendLocation(chat_id = update.message.chat_id, longitude = Palestre[0][0][2], latitude = Palestre[0][0][3])
 		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Palestra trovata (#{Palestre[0][0][0]}):{chr(10)}{Palestre[0][0][1]}{chr(10)}<code>{Palestre[0][0][3]}, {Palestre[0][0][2]}</code>", parse_mode = "HTML")
 	toSendText = f"""Palestre trovate {f" col nome {' '.join(command[1:])}" if len(command) > 1 else ""}{f" entro{config['limitekm']}km" if config['limitekm'] else ''}"""
-	for i in range(0, min(50, len(Palestre))):
-		toSendText += f"{chr(10)}- {Palestre[i][0][1]} (#{Palestre[i][0][0]}{f', {Palestre[i][1]}km' if Palestre[i][1] else ''})"
-	return context.bot.sendMessage(chat_id = update.message.chat_id, text = toSendText)
+	numMess = int((len(Palestre) - (len(Palestre) % 50)) / 50) + 1
+	for j in range(0, numMess):
+		for i in range(50 * j, min(len(Palestre), 50 * (j + 1))):
+			toSendText += f"{chr(10)}- {Palestre[i][0][1]} (#{Palestre[i][0][0]}{f', {Palestre[i][1]}km' if Palestre[i][1] else ''})"
+		context.bot.sendMessage(chat_id = update.message.chat_id, text = toSendText)
+		toSendText = ""
 
 def info(update: Update, context: CallbackContext):
 	if denyCommand(update):
@@ -104,7 +74,7 @@ def info(update: Update, context: CallbackContext):
 		return context.bot.sendMessage(chat_id = update.message.chat_id, text = "Utente non trovato")
 	Permessi = getPermessi()
 	target = target if target else getUser(update.message.from_user.id)
-	toSendText = f"<i>{target.Nome}</i>{f'{chr(10)}<b>Username</b>: @{target.Username}' if target.Username else ''}{chr(10)}<b>ID</b>: {target.IDUtente}{chr(10)}<b>Nickname PoGo</b>: {target.Nickname if target.Nickname else 'Nessuno'} (LV {target.Livello if target.Livello else 'X'}){chr(10)}<b>Team</b>: {config['team'][str(target.Team)]}{f'{chr(10)}<b>Codice amico</b>: <code>{target.CodiceAmico}</code>' if target.CodiceAmico else ''}{chr(10)}<b>Stato</b>: {Permessi[str(target.Autorizzazione)]}{f'{chr(10)}Multiaccount: {target.Multi}' if target.Multi else ''}"
+	toSendText = f"<i>{target.Nome}</i>{f'{chr(10)}<b>Username</b>: @{target.Username}' if target.Username else ''}{chr(10)}<b>ID</b>: {target.IDUtente}{chr(10)}<b>Nickname PoGo</b>: {target.Nickname if target.Nickname else 'Nessuno'} (LV {target.Livello if target.Livello else 'X'}){chr(10)}<b>Team</b>: {config['team'][str(target.Team)]}{f'{chr(10)}<b>Codice amico</b>: <code>{target.CodiceAmico}</code>' if target.CodiceAmico else ''}{chr(10)}<b>Stato</b>: {Permessi[str(target.Autorizzazione)]}"
 	return context.bot.sendPhoto(chat_id = update.message.chat_id, photo = target.Screen, caption = toSendText, parse_mode = "HTML") if config["screen"] and target.Screen else context.bot.sendMessage(chat_id = update.message.chat_id, text = toSendText, parse_mode = "HTML")
 
 def livello(update: Update, context: CallbackContext):
@@ -113,10 +83,10 @@ def livello(update: Update, context: CallbackContext):
 	utente = getUser(update.message.from_user.id)
 	command = update.message.text.split()
 	if len(command) == 1:
-		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo livello è: <b>{utente.Livello}</b>")
+		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo livello è: <b>{utente.Livello}</b>", parse_mode = "HTML")
 	if command[1].isdigit() and int(command[1]) > 0 and int(command[1]) <= 50:
 		utente.setLevel(int(command[1]))
-		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo livello è ora: <b>{int(command[1])}</b>")
+		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo livello è ora: <b>{int(command[1])}</b>", parse_mode = "HTML")
 	else:
 		return context.bot.sendMessage(chat_id = update.message.chat_id, text = "Il livello deve essere compreso tra 1 e 50")
 
@@ -138,10 +108,10 @@ def nickname(update: Update, context: CallbackContext):
 	utente = getUser(update.message.from_user.id)
 	command = sanification(update.message.text, True).split()
 	if len(command) == 1:
-		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo nickname PoGo è:{chr(10)}<b>{utente.Nickname}</b>" if utente.Nickname else "/nickname NICK")
+		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo nickname PoGo è:{chr(10)}<b>{utente.Nickname}</b>" if utente.Nickname else "/nickname NICK", parse_mode = "HTML")
 	if not (command[1].isdigit()) and command[1].isalnum():
 		utente.setNickname(command[1])
-		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo nickname PoGo è ora: <b>{command[1]}</b>")
+		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo nickname PoGo è ora: <b>{command[1]}</b>", parse_mode = "HTML")
 	else:
 		return context.bot.sendMessage(chat_id = update.message.chat_id, text = "/nickname NICK")
 
@@ -150,11 +120,11 @@ def raid(update: Update, context: CallbackContext):
 	if permLevel(update.message.from_user.id) < config["raidperm"]:
 		return
 	param = convertiParametri(sanification(update.message.text))
-	if len(param) == 0:
+	if len(param) < 2:
 		return context.bot.sendMessage(chat_id = update.message.chat_id, text = "/raid palestra:pokemon:orarioinizio\nEs:\n/raid Queen:Charizard:18.32\noppure\n/raid Fontana:Blastoise:12.50:13.35")
 	filters = []
-	for i in range (0, len(param[0])):
-		filters.append(f'%{param[i].lower()}%')
+	for i in range (0, len(param[0].split())):
+		filters.append(f'%{param[0].split()[i].lower()}%')
 	palestra = findGym(filters)
 	if len(palestra) != 1:
 		sendMessage(context.bot, update.message.chat_id, f"Troppe palestre col nome: {param[0]}" if len(palestra) > 1 else f"Nessuna palestra trovata col nome: {param[0]}")
@@ -163,8 +133,9 @@ def raid(update: Update, context: CallbackContext):
 	pokemon = ((param[1] if len(param[1]) <= 64 else param[1][:64]) if len(param) > 1 else None) if not orainizio else None
 	orainizio = (transformTime(param[2]) if len(param) > 2 else None) if not orainizio else orainizio
 	if not orainizio:
-		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"{param[2]} non è un orario valido, prova il formato 12.30")
+		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"{param[2 if len(param) > 2 else 1]} non è un orario valido, prova il formato 12.30")
 	orafine = transformTime(param[3 if pokemon else 2]) if len(param) > (3 if pokemon else 2) else standardEnding(orainizio)
+	orafine = standardEnding(orainizio) if not orafine else orafine
 	IDRaid = addRaid(update.message.from_user.id, {"presenti":{}, "invitati": {}, "fly": {}, "rimossi": {}}, pokemon, palestra[0] if palestra else palestra, orainizio, orafine)
 	keyboard = [[InlineKeyboardButton("1", callback_data = f"raid {IDRaid} livello 1"), InlineKeyboardButton("3", callback_data = f"raid {IDRaid} livello 3"), InlineKeyboardButton("5", callback_data = f"raid {IDRaid} livello 5"), InlineKeyboardButton("Mega", callback_data = f"raid {IDRaid} livello 6")]]
 	if config["mappa"] and palestra:
@@ -174,15 +145,18 @@ def raid(update: Update, context: CallbackContext):
 def raidbutton(update: Update, context: CallbackContext):
 	utente = getUser(update.callback_query.from_user.id)
 	if utente and utente.Autorizzazione < 0:
-		return
+		return update.callback_query.answer("Non autorizzato")
 	if not utente:
 		addUser(update.callback_query.from_user.id, update.callback_query.from_user.username, update.callback_query.from_user.first_name)
+		utente = getUser(update.callback_query.from_user.id)
 	else:
 		if utente.Username != update.callback_query.from_user.username:
 			utente.setUsername(update.callback_query.from_user.username)
 		if utente.Nome != update.callback_query.from_user.name:
 			utente.setName(update.callback_query.from_user.name)
 	raid = getRaid(int(update.callback_query.data.split()[1]))
+	if not raid:
+		return update.callback_query.edit_message_text(text = "Raid non trovato!")
 	keyboard = []
 	config = getConfig()
 	keyboard.append([InlineKeyboardButton("Presente", callback_data = f"raid {raid.IDRaid} presenti"), InlineKeyboardButton("Invitami", callback_data = f"raid {raid.IDRaid} invitati")])
@@ -192,33 +166,42 @@ def raidbutton(update: Update, context: CallbackContext):
 		keyboard.append([InlineKeyboardButton("Toglimi", callback_data = f"raid {raid.IDRaid} remove")])
 	azione = update.callback_query.data.split()[2]
 	if azione == "presenti" or azione == "invitati" or azione == "fly":
-		del raid.Partecipanti["rimossi"][str(utente.IDUtente)]
+		if raid.Partecipanti["rimossi"].get(str(utente.IDUtente), False):
+			del raid.Partecipanti["rimossi"][str(utente.IDUtente)]
 		raid.Partecipanti[azione][str(utente.IDUtente)] = raid.Partecipanti[azione].get(str(utente.IDUtente), 0) + 1
 		raid.setPartecipanti(raid.Partecipanti)
 	elif azione == "remove":
 		if raid.Partecipanti["presenti"].get(str(utente.IDUtente), 0) or raid.Partecipanti["invitati"].get(str(utente.IDUtente), 0) or raid.Partecipanti["fly"].get(str(utente.IDUtente), 0):
-			del raid.Partecipanti["presenti"][str(utente.IDUtente)]
-			del raid.Partecipanti["invitati"][str(utente.IDUtente)]
-			del raid.Partecipanti["fly"][str(utente.IDUtente)]
+			if raid.Partecipanti["presenti"].get(str(utente.IDUtente), 0):
+				del raid.Partecipanti["presenti"][str(utente.IDUtente)]
+			if raid.Partecipanti["invitati"].get(str(utente.IDUtente), 0):
+				del raid.Partecipanti["invitati"][str(utente.IDUtente)]
+			if raid.Partecipanti["fly"].get(str(utente.IDUtente), 0):
+				del raid.Partecipanti["fly"][str(utente.IDUtente)]
 			raid.Partecipanti["rimossi"][str(utente.IDUtente)] = True
 			raid.setPartecipanti(raid.Partecipanti)
+		else:
+			sendMessage(context.bot, utente.IDUtente, "Non puoi rimuoverti se non stai partecipando!")
+			return update.callback_query.answer("Non rimovibile")
 	elif azione == "team":
 		for color in config["team"]:
 			if color == update.callback_query.data.split()[3] and color != utente.Team:
-				utente.setTeam(utente.Team)
+				utente.setTeam(color)
+			if update.callback_query.data.split()[3] == utente.Team:
+				return update.callback_query.answer("Team non cambiato!")
 	else:
 		if utente.Autorizzazione < 3 and utente.IDUtente != raid.IDCreatore:
-			return
+			return update.callback_query.answer("Non autorizzato all'azione")
 		if azione == "passex":
 			raid.PassEX = not raid.PassEX
-			raid.setPassEX(raid.setPassEX)
+			raid.setPassEX(raid.PassEX)
 		elif azione == "delete":
 			raid.Pokemon = f"<b>CHIUSO</b> da {utente.Username}"
 			raid.Stato = "Chiuso"
 			keyboard = []
 			raid.setPokemon(raid.Pokemon)
 			raid.setStato(raid.Stato)
-			return context.bot.edit_message_text(text = testoRaid(raid), parse_mode = "HTML")
+			return update.callback_query.edit_message_text(text = testoRaid(raid), parse_mode = "HTML")
 		elif azione == "livello":
 			raid.Livello = int(update.callback_query.data.split()[3])
 			raid.setLivello(raid.Livello)
@@ -228,11 +211,14 @@ def raidbutton(update: Update, context: CallbackContext):
 		elif azione == "ora":
 			raid.OraConfermata = True
 			raid.setOraConfermata(True)
-		else: #rimossi
-			toSendText = "I seguenti si sono segnati e rimossi dal raid" if len(raid.Partecipanti["rimossi"]) > 0 else "Nessuno si è rimosso dal raid"
+		elif azione == "rimossi":
+			toSendText = f"I seguenti si sono segnati e rimossi dal raid #{raid.IDRaid}" if len(raid.Partecipanti["rimossi"]) > 0 else "Nessuno si è rimosso dal raid"
 			for ID in raid.Partecipanti["rimossi"]:
 				toSendText += f"{chr(10)}<code>/info {ID}</code>"
-			return sendMessage(context.bot, utente.IDUtente, toSendText)
+			sendMessage(context.bot, utente.IDUtente, toSendText)
+			return update.callback_query.answer("Messaggio rimossi")
+		else:
+			return update.callback_query.answer("Pulsante non riconosciuto")
 	if (not raid.Livello) and raid.Stato != "Chiuso":
 		keyboard.append([InlineKeyboardButton("1", callback_data = f"raid {raid.IDRaid} livello 1"), InlineKeyboardButton("2", callback_data = f"raid {raid.IDRaid} livello 2"), InlineKeyboardButton("3", callback_data = f"raid {raid.IDRaid} livello 3"), InlineKeyboardButton("4", callback_data = f"raid {raid.IDRaid} livello 4")])
 		keyboard.append([InlineKeyboardButton("5", callback_data = f"raid {raid.IDRaid} livello 5"), InlineKeyboardButton("Mega", callback_data = f"raid {raid.IDRaid} livello 6")])
@@ -248,23 +234,67 @@ def raidbutton(update: Update, context: CallbackContext):
 		keyboard.append([InlineKeyboardButton("Pass Ex?", callback_data = f"raid {raid.IDRaid} passex"), InlineKeyboardButton("Cancella raid", callback_data = f"raid {raid.IDRaid} delete")])
 	else:
 		keyboard.append([InlineKeyboardButton(config["team"]["giallo"], callback_data = f"raid {raid.IDRaid} team giallo"), InlineKeyboardButton(config["team"]["rosso"], callback_data = f"raid {raid.IDRaid} team rosso"), InlineKeyboardButton(config["team"]["blu"], callback_data = f"raid {raid.IDRaid} team blu")])
+		riga = []
 		if config["tastorimossi"]:
-			keyboard.append([InlineKeyboardButton("Chi si è tolto?", callback_data = f"raid {raid.IDRaid} rimossi")])
-	if azione == "ora" and update.message.chat_id != config["chatraid"]:
+			riga.append(InlineKeyboardButton("Chi si è tolto?", callback_data = f"raid {raid.IDRaid} rimossi"))
+		if config["location"] and raid.IDPalestra:
+			riga.append(InlineKeyboardButton("Distanza", url = f"https://telegram.me/raidhelpbot?start=dist{raid.IDPalestra}"))
+		if len(riga) > 0:
+			keyboard.append(riga)
+	if raid.Livello and (not raid.OraConfermata) and raid.Stato != "Chiuso":
+		keyboard.append([InlineKeyboardButton("Conferma Raid", callback_data = f"raid {raid.IDRaid} ora conferma")])
+	if azione == "ora" and update.callback_query.message.chat_id != config["chatraid"]:
 		sent = sendMessage(context.bot, config["chatraid"], testoRaid(raid), keyboard)
 		if sent and raid.IDPalestra and config["mappa"]:
 			palestra = getGym(raid.IDPalestra)
 			context.bot.sendLocation(chat_id = config["chatraid"], longitude = palestra[2], latitude = palestra[3])
-		return context.bot.edit_message_text(text = "Raid inoltrato nel gruppo!" if sent else "Errore nell'inoltro!")
-	if update.callback_query.inline_message_id:
-		return context.bot.edit_message_text(text = testoRaid(raid), inline_message_id = update.callback_query.inline_message_id, parse_mode = "HTML", reply_markup = InlineKeyboardMarkup(keyboard))
-	else:
-		return context.bot.edit_message_text(text = testoRaid(raid), parse_mode = "HTML", reply_markup = InlineKeyboardMarkup(keyboard))
+		return update.callback_query.edit_message_text(text = "Raid inoltrato nel gruppo!" if sent else "Errore nell'inoltro!")
+	return update.callback_query.edit_message_text(text = testoRaid(raid), parse_mode = "HTML", reply_markup = InlineKeyboardMarkup(keyboard))
+
+def readChat(update: Update, context: CallbackContext):
+	config = getConfig()
+	if update.edited_message:
+		return
+	if (not update.callback_query) and (not (update.message.chat_id == config["chatadmin"] or update.message.chat.type == "private")):
+		return
+	perm = permLevel(update.callback_query.from_user.id if update.callback_query else update.message.from_user.id)
+	if perm < 0:
+		return
+	if not perm:
+		data = update.callback_query if update.callback_query else update.message
+		addUser(data.from_user.id, data.from_user.username, data.from_user.first_name)
+		if update.callback_query:
+			return
+		if config["molestachat"]:
+			context.bot.sendMessage(chat_id = update.message.chat_id, text = f"<b>Ciao {update.message.from_user.first_name}!</b>{chr(10)}Invia a {config['userbot']} lo screen del tuo personaggio con nickname, livello e colore del team visibili!{f'{chr(10)}Inoltre, poiché non hai un username telegram, sarebbe comodo che tu ne scegliessi uno' if update.message.from_user.username else ''}", parse_mode = "HTML")
+	elif (not update.callback_query) and update.message.chat.type == "private" and perm:
+		if config["location"] and update.message.location:
+			utente = getUser(update.message.from_user.id)
+			return utente.setLocation(update.message.location)
+		command = sanification(update.message.text).split()
+		if command[0][0] == "!":
+			if command[0].lower() == "!admin":
+				context.bot.sendMessage(chat_id = update.message.chat_id, text = mostraUtenti(getUsersListByAuth(2)))
+			elif command[0].lower() == "!codici":
+				context.bot.sendMessage(chat_id = update.message.chat_id, text = mostraCodici(getCodesList(command[1].lower() if (command[1].lower() == "rosso" or command[1].lowe() == "blu" or command[1].lower() == "giallo") else None)))
+			#elif command[0][0] == "!comandi":
+			#	context.bot.sendMessage(chat_id = update.message.chat_id, text = commandsList())
+			#else:
+			#	personalizedCommand(context.bot, update, command[0][1:])
+		else:
+			utente = getUser(update.message.from_user.id)
+			if utente.Username != update.message.from_user.username:
+				utente.setUsername(update.message.from_user.username)
+			if utente.Nome != update.message.from_user.first_name:
+				utente.setName(update.message.from_user.first_name)
+			if config["screen"] and update.message.photo and update.message.photo[-1] and update.message.photo[-1].file_id:
+				utente.setScreen(update.message.photo[-1].file_id)
+				context.bot.sendPhoto(chat_id = update.message.from_user.id, photo = update.message.photo[-1].file_id, caption = "Screen impostato!")
 
 def sanification(text: str, hard: bool = False):
 	if hard:
-		return re.sub("[^0-9a-zA-Z]+", "", text)
-	return re.sub("[^0-9a-zA-Z'.:,@àèéìòù!]+", "", text)
+		return re.sub("[^0-9a-zA-Z ]+", "", text)
+	return re.sub("[^0-9a-zA-Z'.:,@àèéìòù! ]+", "", text)
 
 def sendMessage(bot: Bot, IDChat: int, toSendText: str, keyboard: dict = []):
 	try:
@@ -275,7 +305,7 @@ def sendMessage(bot: Bot, IDChat: int, toSendText: str, keyboard: dict = []):
 
 def standardEnding(orario: dict):
 	term = [orario[0], orario[1] + 45]
-	if term[1] > 60:
+	if term[1] >= 60:
 		term = [term[0] + 1, term[1] - 60]
 		term[0] -= 24 if term[0] > 23 else 0
 	return term
@@ -290,7 +320,17 @@ def start(update: Update, context: CallbackContext):
 	#	return functions.addtoraid(bot, update)
 	if not perm:
 		addUser(update.message.from_user.id, update.message.from_user.username, update.message.from_user.first_name)
-		return context.bot.sendMessage(chat_id = update.message.chat_id, text = "Per iniziare, imposta in privato livello, nickname in gioco e squadra. Per sapere come funzionano i comandi, inviami !guida o /help\nSe hai dubbi chiedi agli admin del gruppo, dopo che avrai inviato tutto questo il tuo account verrà verificato e saremo pronti per iniziare!")
+		return context.bot.sendMessage(chat_id = update.message.chat_id, text = "Per iniziare, imposta /livello, /nickname in gioco e /team\nSe hai dubbi chiedi agli admin del gruppo!")
+	elif len(update.message.text.split()) > 1 and update.message.text.split()[1].replace("dist","").isdigit():
+		palestra = getGym(int(update.message.text.split()[1].replace("dist","")))
+		if not palestra:
+			return context.bot.sendMessage(chat_id = update.message.chat_id, text = "Palestra non trovata")
+		else:
+			utente = getUser(update.message.from_user.id)
+			config = getConfig()
+			if ["mappa"]:
+				context.bot.sendLocation(chat_id = update.message.chat_id, longitude = palestra[2], latitude = [3])
+			return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"""Palestra trovata (#{palestra[0]}):{chr(10)}{palestra[1]}{chr(10)}<code>{palestra[3]}, {palestra[2]}</code>{(f"{chr(10)}Distante {distance(utente, [palestra[2], palestra[3]])}km" if utente.Posizione else f"{chr(10)}Invia la tua posizione per sapere quanto sei distante") if config['location'] else ''}""", parse_mode = "HTML")
 	else:
 		return context.bot.sendMessage(chat_id = update.message.chat_id, text = "Sei già registrato!")
 
@@ -303,10 +343,10 @@ def team(update: Update, context: CallbackContext):
 	utente = getUser(update.message.from_user.id)
 	command = update.message.text.split()
 	if len(command) == 1:
-		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo Team è:{chr(10)}<b>{str(utente.Team)}</b> {getConfig()['team'][str(utente.Team)]}")
+		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo Team è:{chr(10)}<b>{str(utente.Team)}</b> {getConfig()['team'][str(utente.Team)]}", parse_mode = "HTML")
 	if (command[1].lower() == "rosso" or command[1].lower() == "blu" or command[1].lower() == "giallo"):
 		utente.setTeam(command[1].lower())
-		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo Team è ora:{chr(10)}<b>{command[1].lower()}</b> {getConfig()['team'][command[1].lower()]}")
+		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo Team è ora:{chr(10)}<b>{command[1].lower()}</b> {getConfig()['team'][command[1].lower()]}", parse_mode = "HTML")
 	else:
 		return context.bot.sendMessage(chat_id = update.message.chat_id, text = "/team blu/giallo/rosso")
 
