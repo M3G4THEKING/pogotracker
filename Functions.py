@@ -78,7 +78,7 @@ def info(update: Update, context: CallbackContext):
 	return context.bot.sendPhoto(chat_id = update.message.chat_id, photo = target.Screen, caption = toSendText, parse_mode = "HTML") if config["screen"] and target.Screen else context.bot.sendMessage(chat_id = update.message.chat_id, text = toSendText, parse_mode = "HTML")
 
 def livello(update: Update, context: CallbackContext):
-	if denyCommand(update):
+	if denyCommand(update, True):
 		return
 	utente = getUser(update.message.from_user.id)
 	command = update.message.text.split()
@@ -374,4 +374,5 @@ def testoRaid(raid: Raid):
 	return toSendText
 
 def transformTime(text):
+	text = text.replace(" ","")
 	return [min(23, max(0, int(text.split('.')[0]))), min(59, max(0, int(text.split('.')[1])))] if len(text.split('.')) == 2 and text.split('.')[0].isdigit() and text.split('.')[1].isdigit() else None

@@ -1,9 +1,11 @@
 from Database import getAuth
 from JSONParser import getConfig
 
-def denyCommand(update):
+def denyCommand(update, raidGroup = False):
 	config = getConfig()
-	if permLevel(update.message.from_user.id) > 0 and (update.message.chat_id == config["chatadmin"] or update.message.chat.type == "private"):
+	if raidGroup and update.message.chat_id == config["chatraid"]:
+		return False
+	if update.message.chat_id == config["chatadmin"] or update.message.chat.type == "private":
 		return False
 	return True
 
