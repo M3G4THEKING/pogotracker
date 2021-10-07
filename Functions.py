@@ -80,6 +80,7 @@ def info(update: Update, context: CallbackContext):
 def livello(update: Update, context: CallbackContext):
 	if denyCommand(update, True):
 		return
+	readChat(update, context)
 	utente = getUser(update.message.from_user.id)
 	command = update.message.text.split()
 	if len(command) == 1:
@@ -255,7 +256,7 @@ def readChat(update: Update, context: CallbackContext):
 	config = getConfig()
 	if update.edited_message:
 		return
-	if (not update.callback_query) and (not (update.message.chat_id == config["chatadmin"] or update.message.chat.type == "private")):
+	if (not update.callback_query) and (not (update.message.chat_id == config["chatraid"] or update.message.chat.type == "private" or update.message.chat_id == config["chatadmin"])):
 		return
 	perm = permLevel(update.callback_query.from_user.id if update.callback_query else update.message.from_user.id)
 	if perm < 0:
@@ -361,15 +362,15 @@ def testoRaid(raid: Raid):
 	toSendText += f"{chr(10)}{chr(10)}<b>Presenti</b>: {sum(raid.Partecipanti['presenti'].values())}"
 	for ID in raid.Partecipanti["presenti"]:
 		utente = getUser(int(ID))
-		toSendText += f"""{chr(10)}{utente.Nickname if utente.Nickname else (utente.Username if utente.Username else utente.Nome)} ({f'{utente.Livello} ' if utente.Livello else ''} {config['team'][str(utente.Team)]}){f" +{raid.Partecipanti['presenti'][str(ID)]} account" if raid.Partecipanti['presenti'][str(ID)] > 1 else ''}"""
+		toSendText += f"""{chr(10)}{utente.Nickname if utente.Nickname else (utente.Username if utente.Username else utente.Nome)} ({f'{utente.Livello} ' if utente.Livello else ''} {config['team'][str(utente.Team)]}){f" +{raid.Partecipanti['presenti'][str(ID)]-1} account" if raid.Partecipanti['presenti'][str(ID)] > 1 else ''}"""
 	toSendText += f"{chr(10)}{chr(10)}<b>Da Invitare</b>: {sum(raid.Partecipanti['invitati'].values())}"
 	for ID in raid.Partecipanti["invitati"]:
 		utente = getUser(int(ID))
-		toSendText += f"""{chr(10)}{utente.Nickname if utente.Nickname else (utente.Username if utente.Username else utente.Nome)} ({f'{utente.Livello} ' if utente.Livello else ''} {config['team'][str(utente.Team)]}){f" +{raid.Partecipanti['invitati'][str(ID)]} account" if raid.Partecipanti['invitati'][str(ID)] > 1 else ''}"""
+		toSendText += f"""{chr(10)}{utente.Nickname if utente.Nickname else (utente.Username if utente.Username else utente.Nome)} ({f'{utente.Livello} ' if utente.Livello else ''} {config['team'][str(utente.Team)]}){f" +{raid.Partecipanti['invitati'][str(ID)]-1} account" if raid.Partecipanti['invitati'][str(ID)] > 1 else ''}"""
 	toSendText += f"{chr(10)}{chr(10)}<b>Remoti</b>: {sum(raid.Partecipanti['fly'].values())}"
 	for ID in raid.Partecipanti["fly"]:
 		utente = getUser(int(ID))
-		toSendText += f"""{chr(10)}{utente.Nickname if utente.Nickname else (utente.Username if utente.Username else utente.Nome)} ({f'{utente.Livello} ' if utente.Livello else ''} {config['team'][str(utente.Team)]}){f" +{raid.Partecipanti['fly'][str(ID)]} account" if raid.Partecipanti['fly'][str(ID)] > 1 else ''}"""
+		toSendText += f"""{chr(10)}{utente.Nickname if utente.Nickname else (utente.Username if utente.Username else utente.Nome)} ({f'{utente.Livello} ' if utente.Livello else ''} {config['team'][str(utente.Team)]}){f" +{raid.Partecipanti['fly'][str(ID)]-1} account" if raid.Partecipanti['fly'][str(ID)] > 1 else ''}"""
 	toSendText += f"{chr(10)}{chr(10)}<b>Orario raid</b>: {stringaOrario(raid.OraInizio)} - {stringaOrario(raid.OraFine)}{chr(10)}<b>Partecipanti</b>: {sum(raid.Partecipanti['presenti'].values())+sum(raid.Partecipanti['invitati'].values())+sum(raid.Partecipanti['fly'].values())}{'' if raid.OraConfermata else f'{chr(10)}{chr(10)}Raid non confermato'}{chr(10)}#{raid.IDRaid}"
 	return toSendText
 
