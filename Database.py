@@ -85,6 +85,6 @@ def getUser(ID: int = None, Username: str = None):
 		cur.execute('SELECT * FROM "Users" WHERE "IDUtente" = %s', (str(ID), ))
 		res = cur.fetchone()
 	if Username:
-		cur.execute('SELECT * FROM "Users" WHERE lower("Username") = %s or lower("Nickname") = %s', (Username.lower() if Username[0] != "@" else Username[1:].lower(), ))
+		cur.execute('SELECT * FROM "Users" WHERE lower("Username") = %s or lower("Nickname") = %s', (Username.lower() if Username[0] != "@" else Username[1:].lower(), Username.lower() if Username[0] != "@" else Username[1:].lower()))
 		res = cur.fetchone()
 	return User(res) if res else None
