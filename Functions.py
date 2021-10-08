@@ -75,7 +75,7 @@ def info(update: Update, context: CallbackContext):
 	Permessi = getPermessi()
 	target = target if target else getUser(update.message.from_user.id)
 	toSendText = f"<i>{target.Nome}</i>{f'{chr(10)}<b>Username</b>: @{target.Username}' if target.Username else ''}{chr(10)}<b>ID</b>: {target.IDUtente}{chr(10)}<b>Nickname PoGo</b>: {target.Nickname if target.Nickname else 'Nessuno'} (LV {target.Livello if target.Livello else 'X'}){chr(10)}<b>Team</b>: {config['team'][str(target.Team)]}{f'{chr(10)}<b>Codice amico</b>: <code>{target.CodiceAmico}</code>' if target.CodiceAmico else ''}{chr(10)}<b>Stato</b>: {Permessi[str(target.Autorizzazione)]}"
-	if config["mappa"] and target.ID == update.message.from_user.id and target.Posizione:
+	if update.message.chat.type == "private" and config["location"] and target.ID == update.message.from_user.id and target.Posizione:
 		context.bot.sendLocation(chat_id = update.message.chat_id, longitude = target.Posizione[0], latitude = target.Posizione[1])
 		toSendText += "\nLa tua posizione è visibile solo a te!"
 	return context.bot.sendPhoto(chat_id = update.message.chat_id, photo = target.Screen, caption = toSendText, parse_mode = "HTML") if config["screen"] and target.Screen else context.bot.sendMessage(chat_id = update.message.chat_id, text = toSendText, parse_mode = "HTML")
