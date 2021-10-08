@@ -17,7 +17,7 @@ def getConnection():
 
 def addGym(Nome: str, Posizione: dict):
 	cur = getCursor()
-	cur.execute('INSERT INTO "Gym" ("Nome", "Longitudine", "Latitudine") VALUES (%s, %s, %s) RETURNING "IDPalestra"', (Nome, Posizione[0], Posizione[1]))
+	cur.execute('INSERT INTO "Gyms" ("Nome", "Longitudine", "Latitudine") VALUES (%s, %s, %s) RETURNING "IDPalestra"', (Nome, Posizione[0], Posizione[1]))
 	return cur.fetchone()[0]
 
 def addRaid(IDCreatore: int, Partecipanti: dict, Pokemon: str, IDPalestra: int, OraInizio: dict, OraFine: dict):

@@ -75,6 +75,9 @@ def info(update: Update, context: CallbackContext):
 	Permessi = getPermessi()
 	target = target if target else getUser(update.message.from_user.id)
 	toSendText = f"<i>{target.Nome}</i>{f'{chr(10)}<b>Username</b>: @{target.Username}' if target.Username else ''}{chr(10)}<b>ID</b>: {target.IDUtente}{chr(10)}<b>Nickname PoGo</b>: {target.Nickname if target.Nickname else 'Nessuno'} (LV {target.Livello if target.Livello else 'X'}){chr(10)}<b>Team</b>: {config['team'][str(target.Team)]}{f'{chr(10)}<b>Codice amico</b>: <code>{target.CodiceAmico}</code>' if target.CodiceAmico else ''}{chr(10)}<b>Stato</b>: {Permessi[str(target.Autorizzazione)]}"
+	if config["mappa"] and target.ID == update.message.from_user.id and target.Posizione:
+		context.bot.sendLocation(chat_id = update.message.chat_id, longitude = target.Posizione[0], latitude = target.Posizione[1])
+		toSendText += "\nLa tua posizione è visibile solo a te!"
 	return context.bot.sendPhoto(chat_id = update.message.chat_id, photo = target.Screen, caption = toSendText, parse_mode = "HTML") if config["screen"] and target.Screen else context.bot.sendMessage(chat_id = update.message.chat_id, text = toSendText, parse_mode = "HTML")
 
 def livello(update: Update, context: CallbackContext):
@@ -330,7 +333,7 @@ def start(update: Update, context: CallbackContext):
 			utente = getUser(update.message.from_user.id)
 			config = getConfig()
 			if ["mappa"]:
-				context.bot.sendLocation(chat_id = update.message.chat_id, longitude = palestra[2], latitude = [3])
+				context.bot.sendLocation(chat_id = update.message.chat_id, longitude = palestra[2], latitude = palestra[3])
 			return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"""Palestra trovata (#{palestra[0]}):{chr(10)}{palestra[1]}{chr(10)}<code>{palestra[3]}, {palestra[2]}</code>{(f"{chr(10)}Distante {distance(utente, [palestra[2], palestra[3]])}km" if utente.Posizione else f"{chr(10)}Invia la tua posizione per sapere quanto sei distante") if config['location'] else ''}""", parse_mode = "HTML")
 	else:
 		return context.bot.sendMessage(chat_id = update.message.chat_id, text = "Sei già registrato!")

@@ -84,7 +84,7 @@ def palestra(update: Update, context: CallbackContext):
 		if not (len(coords) == 2 and coords[0].isdigit() and coords[1].isdigit()):
 			return context.bot.sendMessage(chat_id = update.message.chat_id, text = "Scrivi le coordinate in un messaggio quotato nel formato:\n<11.214123, 44.125422>\noppure\n11.214123, 44.125422")
 		coords = reply.text.replace("<", "").replace(">", "").split(",")
-		posizione = [float(coords[0]), float(coords[1])]
+		posizione = [float(coords[1]), float(coords[0])]
 	filters = []
 	command = sanification(update.message.text).split()
 	for i in range (1, len(command)):
