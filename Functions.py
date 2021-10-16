@@ -76,7 +76,7 @@ def helptext(perm: int):
 	config = getConfig()
 	text = "<b>Comandi disponibili</b>\n<i>{ } = obbligatorio, [ ] = opzionale</i>\nAlcuni dei seguenti comandi potrebbero funzionare solo in privato o nei gruppi dedicati\n\n/codice_amico [codice]: mostra o cambia il proprio codice\n/gym [nome/numero]: mostra la lista di palestre salvate, o quella/e specificate\n/info [utente]: mostra le proprie informazioni o del giocatore specificato\n/livello [livello]: mostra o cambia il proprio livello\n/nickname [nick]: mostra o cambia il proprio nickname PoGo\n/team [colore]: mostra o cambia il proprio team"
 	text += "\n\n/raid palestra:pokemon:orarioinizio[:orariotermine]: crea un nuovo raid e segui i passaggi; gli orari vanno scritti nel formato Ora.Minuto" if perm >= config["raidperm"] else "\n\nNon puoi creare raid, ma puoi parteciparvi negli appositi gruppi segnandoti secondo le indicazioni degli admin"
-	text += "\n\n/ban {utente}: banna qualcuno dal bot\n/eliminapalestra {nome/numero}: rimuove una palestra da quelle salvate\n/idchat: vede l'id della chat attuale\n/listaraid [/listaraid (LV) Pokemon1,Pokemon2,Pokemon3]: mostra o cambioa la lista raid dei pokemon che suggerisce il raid\n/palestra {nome}: crea una nuova palestra (come viene indicato)\n/unban {utente}: rimette a Registrato un utente bannato\n/verifica {utente}: segna come Verificato un utente, utile se si vuole permettere a qualcuno non Admin di fare raid dal Config" if perm >= 3 else ""
+	text += "\n\n/ban {utente}: banna qualcuno dal bot\n/eliminapalestra {nome/numero}: rimuove una palestra da quelle salvate\n/idchat: vede l'id della chat attuale\n/listaraid [LV Pokemon1,Pokemon2,Pokemon3]: mostra o cambia la lista raid dei pokemon che suggerisce il raid\n/palestra {nome}: crea una nuova palestra (come viene indicato)\n/unban {utente}: rimette a Registrato un utente bannato\n/verifica {utente}: segna come Verificato un utente, utile se si vuole permettere a qualcuno non Admin di fare raid dal Config" if perm >= 3 else ""
 	text += "\n/admin {utente}: aggiunge o toglie qualcuno dagli admin" if perm == 4 else ""
 	return text
 
@@ -285,7 +285,7 @@ def readChat(update: Update, context: CallbackContext):
 		addUser(data.from_user.id, data.from_user.username, data.from_user.first_name)
 		if update.callback_query:
 			return
-		if config["molestachat"]:
+		if config["benvenuto"]:
 			context.bot.sendMessage(chat_id = update.message.chat_id, text = f"<b>Ciao {update.message.from_user.first_name}!</b>{chr(10)}Invia a {config['userbot']} lo screen del tuo personaggio con nickname, livello e colore del team visibili!{f'{chr(10)}Inoltre, poiché non hai un username telegram, sarebbe comodo che tu ne scegliessi uno' if update.message.from_user.username else ''}", parse_mode = "HTML")
 	elif (not update.callback_query) and update.message.chat.type == "private" and perm:
 		if config["location"] and update.message.location:
