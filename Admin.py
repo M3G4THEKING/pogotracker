@@ -7,12 +7,12 @@ from Functions import sanification
 from JSONParser import getConfig, getListaRaid, getPermessi, updateListaRaid
 
 def admin(update: Update, context: CallbackContext):
-	changePermission(update, context, 4, 3)
+	changePermission(update, context, 4, 3, True)
 
 def ban(update: Update, context: CallbackContext):
 	changePermission(update, context, 3, -1)
 
-def changePermission(update:Update, context: CallbackContext, minPerm: int, Autorizzazione: int):
+def changePermission(update: Update, context: CallbackContext, minPerm: int, Autorizzazione: int, Reset: bool = False):
 	if permLevel(update.message.from_user.id) < minPerm:
 		return
 	command = sanification(update.message.text, True).split()
@@ -25,9 +25,9 @@ def changePermission(update:Update, context: CallbackContext, minPerm: int, Auto
 		elif target.Autorizzazione >= permLevel(update.message.from_user.id):
 			context.bot.sendMessage(chat_id = update.message.chat_id, text = "Non puoi cambiare i permessi di chi è del tuo stesso livello")
 		else:
-			target.Autorizzazione = Autorizzazione
+			target.Autorizzazione = Autorizzazione if (target.Autorizzazione != Autorizzazione or (not Reset)) else 1
 			target.setAuthorization(Autorizzazione)
-			context.bot.sendMessage(chat_id = update.message.chat_id, text = f"{target.Username if target.Username else target.Nome} è ora {getPermessi()[str(Autorizzazione)]}")
+			context.bot.sendMessage(chat_id = update.message.chat_id, text = f"{target.Username if target.Username else target.Nome} è ora {getPermessi()[str(target.Autorizzazione)]}")
 
 def eliminapalestra(update: Update, context: CallbackContext):
 	if permLevel(update.message.from_user.id) < 3:
@@ -49,6 +49,11 @@ def eliminapalestra(update: Update, context: CallbackContext):
 	for i in range(0, min(50, len(Palestre))):
 		toSendText += f"{chr(10)}- {Palestre[i][1]} (#{Palestre[i][0]})"
 	return context.bot.sendMessage(chat_id = update.message.chat_id, text = toSendText)
+
+def idchat(update: Update, context: CallbackContext):
+	if permLevel(update.message.from_user.id) < 3:
+		return
+	return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"IDChat:\n{update.message.chat_id}")
 
 def listaraid(update: Update, context: CallbackContext):
 	if permLevel(update.message.from_user.id) < 3:
