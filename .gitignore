@@ -10,5 +10,4 @@ logs
 .env
 pogocreep.sh
 requirements.txt
-logs/RaidHelp.log
 old
