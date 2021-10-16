@@ -8,7 +8,6 @@ from Raid import Raid
 from User import User
 
 import re
-#comandi
 
 def codice_amico(update: Update, context: CallbackContext):
 	if denyCommand(update):
@@ -16,11 +15,11 @@ def codice_amico(update: Update, context: CallbackContext):
 	utente = getUser(update.message.from_user.id)
 	command = update.message.text.split()
 	if len(command) == 1:
-		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo codice amico è:{chr(10)}<code>{utente.CodiceAmico}</code>" if utente.CodiceAmico else "/codice_amico CODICE")
+		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo codice amico è:{chr(10)}<code>{utente.CodiceAmico}</code>" if utente.CodiceAmico else "/codice_amico CODICE", parse_mode = "HTML")
 	codice = ''.join(command[1:])
 	if codice.isdigit() and len(codice) == 12:
 		utente.setFriendCode(int(codice))
-		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo codice amico è ora:{chr(10)}<code>{codice}</code>")
+		return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Il tuo codice amico è ora:{chr(10)}<code>{codice}</code>", parse_mode = "HTML")
 	else:
 		return context.bot.sendMessage(chat_id = update.message.chat_id, text = "/codice_amico CODICE")
 
@@ -36,7 +35,6 @@ def filterDistance(Palestre: dict, utente: User, limitekm: int, mappa: bool):
 		dist = distance(utente, [pal[2], pal[3]]) if (mappa and utente.Posizione) else None
 		if (not dist) or (not limitekm) or dist <= limitekm:
 			newPal.append([pal, dist])
-	#return newPal
 	return sorted(newPal, key=lambda pd: pd[1]) if (mappa and utente.Posizione) else sorted(newPal, key=lambda pd: pd[0][1])
 
 def gym(update: Update, context: CallbackContext):
@@ -64,6 +62,24 @@ def gym(update: Update, context: CallbackContext):
 		context.bot.sendMessage(chat_id = update.message.chat_id, text = toSendText)
 		toSendText = ""
 
+def help(update: Update, context: CallbackContext):
+	perm = permLevel(update.message.from_user.id)
+	if perm < 1:
+		return
+	if update.message.chat.type != "private":
+		if not sendMessage(context.bot, update.message.from_user.id, helptext(perm)):
+			context.bot.sendMessage(chat_id = update.message.chat_id, text = f"{update.message.from_user.first_name}, sblocca il bot per vedere l'help")
+	else:
+		sendMessage(context.bot, update.message.chat_id, helptext(perm))
+
+def helptext(perm: int):
+	config = getConfig()
+	text = "<b>Comandi disponibili</b>\n<i>{ } = obbligatorio, [ ] = opzionale</i>\nAlcuni dei seguenti comandi potrebbero funzionare solo in privato o nei gruppi dedicati\n\n/codice_amico [codice]: mostra o cambia il proprio codice\n/gym [nome/numero]: mostra la lista di palestre salvate, o quella/e specificate\n/info [utente]: mostra le proprie informazioni o del giocatore specificato\n/livello [livello]: mostra o cambia il proprio livello\n/nickname [nick]: mostra o cambia il proprio nickname PoGo\n/team [colore]: mostra o cambia il proprio team"
+	text += "\n\n/raid palestra:pokemon:orarioinizio[:orariotermine]: crea un nuovo raid e segui i passaggi; gli orari vanno scritti nel formato Ora.Minuto" if perm >= config["raidperm"] else "\n\nNon puoi creare raid, ma puoi parteciparvi negli appositi gruppi segnandoti secondo le indicazioni degli admin"
+	text += "\n\n/ban {utente}: banna qualcuno dal bot\n/eliminapalestra {nome/numero}: rimuove una palestra da quelle salvate\n/idchat: vede l'id della chat attuale\n/listaraid [/listaraid (LV) Pokemon1,Pokemon2,Pokemon3]: mostra o cambioa la lista raid dei pokemon che suggerisce il raid\n/palestra {nome}: crea una nuova palestra (come viene indicato)\n/unban {utente}: rimette a Registrato un utente bannato\n/verifica {utente}: segna come Verificato un utente, utile se si vuole permettere a qualcuno non Admin di fare raid dal Config" if perm >= 3 else ""
+	text += "\n/admin {utente}: aggiunge o toglie qualcuno dagli admin" if perm == 4 else ""
+	return text
+
 def info(update: Update, context: CallbackContext):
 	if denyCommand(update):
 		return
@@ -75,7 +91,7 @@ def info(update: Update, context: CallbackContext):
 	Permessi = getPermessi()
 	target = target if target else getUser(update.message.from_user.id)
 	toSendText = f"<i>{target.Nome}</i>{f'{chr(10)}<b>Username</b>: @{target.Username}' if target.Username else ''}{chr(10)}<b>ID</b>: {target.IDUtente}{chr(10)}<b>Nickname PoGo</b>: {target.Nickname if target.Nickname else 'Nessuno'} (LV {target.Livello if target.Livello else 'X'}){chr(10)}<b>Team</b>: {config['team'][str(target.Team)]}{f'{chr(10)}<b>Codice amico</b>: <code>{target.CodiceAmico}</code>' if target.CodiceAmico else ''}{chr(10)}<b>Stato</b>: {Permessi[str(target.Autorizzazione)]}"
-	if update.message.chat.type == "private" and config["location"] and target.ID == update.message.from_user.id and target.Posizione:
+	if update.message.chat.type == "private" and config["location"] and target.IDUtente == update.message.from_user.id and target.Posizione:
 		context.bot.sendLocation(chat_id = update.message.chat_id, longitude = target.Posizione[0], latitude = target.Posizione[1])
 		toSendText += "\nLa tua posizione è visibile solo a te!"
 	return context.bot.sendPhoto(chat_id = update.message.chat_id, photo = target.Screen, caption = toSendText, parse_mode = "HTML") if config["screen"] and target.Screen else context.bot.sendMessage(chat_id = update.message.chat_id, text = toSendText, parse_mode = "HTML")
@@ -279,12 +295,8 @@ def readChat(update: Update, context: CallbackContext):
 		if command[0][0] == "!":
 			if command[0].lower() == "!admin":
 				context.bot.sendMessage(chat_id = update.message.chat_id, text = mostraUtenti(getUsersListByAuth(2)))
-			elif command[0].lower() == "!codici":
-				context.bot.sendMessage(chat_id = update.message.chat_id, text = mostraCodici(getCodesList(command[1].lower() if (command[1].lower() == "rosso" or command[1].lowe() == "blu" or command[1].lower() == "giallo") else None)))
-			#elif command[0][0] == "!comandi":
-			#	context.bot.sendMessage(chat_id = update.message.chat_id, text = commandsList())
-			#else:
-			#	personalizedCommand(context.bot, update, command[0][1:])
+			elif command[0].lower() == "!codici" and len(command) > 1 and (command[1].lower() == "rosso" or command[1].lower() == "blu" or command[1].lower() == "giallo"):
+				context.bot.sendMessage(chat_id = update.message.chat_id, text = mostraCodici(getCodesList(command[1].lower())))
 		else:
 			utente = getUser(update.message.from_user.id)
 			if utente.Username != update.message.from_user.username:
