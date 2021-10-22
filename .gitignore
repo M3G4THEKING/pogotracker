@@ -1,13 +1,11 @@
 __pycache__
 botid.txt
-screenlog.0
-connectPsycopg2.txt
 Bot.json
 Connect.json
-Config.json
-ListaRaid.json
 logs
 .env
 pogocreep.sh
-requirements.txt
 old
+TrasferimentoTableGyms.py
+TrasferimentoTableRaid.py
+TrasferimentoTableUser.py

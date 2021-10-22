@@ -1,0 +1,19 @@
+{
+	"chatadmin": -1001601781382,
+	"fly": true,
+	"userbot": "@raidhelpbot",
+	"raidperm": 3,
+	"benvenuto": false,
+	"mappa": false,
+	"tastorimossi": true,
+	"limitekm": null,
+	"chatraid": -1001391984888,
+	"team": {
+		"giallo": "🟡",
+		"rosso": "🔴",
+		"blu": "🔵",
+		"None": "🥐"
+	},
+	"screen": false,
+	"location": true
+}
