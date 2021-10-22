@@ -1,0 +1,14 @@
+Per avviare il bot, è necessario avviare il file pogotracker
+
+Dato che il processo tiene occupato il terminale, è consigliato usare uno screen o simili
+
+screen -d -m python3 pogotracker.py
+
+Per chiudere il bot, si può usare CTRL + C dallo screen o
+
+pkill -f -HUP pogotracker.py
+
+
+Il proprietario del Bot è salvato in Bot.json; questa persona può reclamare il proprio grado in Database mandando
+/proprietario
+al bot

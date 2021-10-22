@@ -4,9 +4,10 @@ from telegram.ext import CallbackContext
 from Auth import permLevel
 from Database import addGym, deleteGym, findGym, getUser
 from Functions import sanification
-from JSONParser import getConfig, getListaRaid, getPermessi, updateListaRaid
+from JSONParser import getConfig, getListaRaid, getPermessi, loadJSON, updateListaRaid
 
 def admin(update: Update, context: CallbackContext):
+	#ATTENZIONE! Solo una persona con permesso pari a 4 o superiore nel Database può assegnare Admin! Non esiste un comando per questo
 	changePermission(update, context, 4, 3, True)
 
 def ban(update: Update, context: CallbackContext):
@@ -96,11 +97,18 @@ def palestra(update: Update, context: CallbackContext):
 		filters.append(f'%{command[i].lower()}%')
 	Palestre = findGym(filters)
 	if len(Palestre) != 0:
-		return context.bot.sendMessage(chat_id = update.message.chat_id, text = "Ho trovato altre palestre con quel nome, usano uno più specifico")
+		context.bot.sendMessage(chat_id = update.message.chat_id, text = "Ho trovato altre palestre con quel nome, avranno nomi simili!")
 	nome = ' '.join(filters).replace("%","")[:50]
 	IDPalestra = addGym(nome, posizione)
 	context.bot.sendLocation(chat_id = update.message.chat_id, longitude = posizione[0], latitude = posizione[1])
 	return context.bot.sendMessage(chat_id = update.message.chat_id, text = f"Nuova palestra! (#{IDPalestra}):{chr(10)}{nome}{chr(10)}<code>{posizione[0]}, {posizione[1]}</code>", parse_mode = "HTML")
+
+def proprietario(update: Update, context: CallbackContext):
+	utente = getUser(update.message.from_user.id)
+	BotInfos = loadJSON("Bot.json")
+	if BotInfos["Owner"] == update.message.from_user.id:
+		utente.setAuthorization(4)
+		context.bot.sendMessage(chat_id = update.message.chat_id, text = f"{utente.Username} è ora {getPermessi()[str(utente.Autorizzazione)]}")
 
 def unban(update: Update, context: CallbackContext):
 	changePermission(update, context, 3, 1)

@@ -1,7 +1,7 @@
 
 from telegram.ext import Dispatcher, CommandHandler, CallbackQueryHandler, Filters, InlineQueryHandler, MessageHandler
 
-from Admin import admin, ban, eliminapalestra, idchat, listaraid, palestra, unban, verifica
+from Admin import admin, ban, eliminapalestra, idchat, listaraid, palestra, proprietario, unban, verifica
 from ButtonHandler import ButtonHandler
 from Functions import codice_amico, gym, help, info, livello, nickname, raid, readChat, start, team
 from InlineButton import InlineRaid
@@ -19,6 +19,7 @@ def loadCommands(dispatcher: Dispatcher) -> None:
 	dispatcher.add_handler(CommandHandler("livello", livello))
 	dispatcher.add_handler(CommandHandler("nickname", nickname))
 	dispatcher.add_handler(CommandHandler("palestra", palestra))
+	dispatcher.add_handler(CommandHandler("proprietario", proprietario))
 	dispatcher.add_handler(CommandHandler("raid", raid))
 	dispatcher.add_handler(CommandHandler("start", start))
 	dispatcher.add_handler(CommandHandler("team", team))
